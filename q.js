@@ -105,6 +105,8 @@ var nextTick =(function () {
                 head.domain = void 0;
                 domain.enter();
             }
+            // set the current context
+            Q.context = head.context;
 
             try {
                 task();
@@ -134,6 +136,9 @@ var nextTick =(function () {
                        throw e;
                     }, 0);
                 }
+            }finally {
+                // clear the context
+                Q.context = undefined;
             }
 
             if (domain) {
@@ -148,7 +153,8 @@ var nextTick =(function () {
         tail = tail.next = {
             task: task,
             domain: isNodeJS && process.domain,
-            next: null
+            next: null,
+            context: Q.context  // execute the task under the current context
         };
 
         if (!flushing) {
